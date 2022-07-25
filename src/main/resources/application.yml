@@ -1,8 +1,40 @@
+server:
+  port: ${PORT:8001}
 spring:
   application:
     name: gisa-mod-info-cad
-server:
-  port: 8102
+    version: v1
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/gisadb}
+    driverClassName: org.postgresql.Driver
+    password: ${POSTGRES_PASSWORD}
+    username: ${POSTGRES_USER:postgres}
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        temp:
+          use_jdbc_metadata_defaults: false
+    show-sql: true
+  session:
+    store-type: none
+  flyway:
+    baselineOnMigrate : true 
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/gisadb}
+    schemas: gisamodinfocaddb
+    password: ${POSTGRES_PASSWORD}
+    user: ${POSTGRES_USER:postgres}
+    locations: classpath:db/migration
+  main:
+    allow-bean-definition-overriding: true
+    
+eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}

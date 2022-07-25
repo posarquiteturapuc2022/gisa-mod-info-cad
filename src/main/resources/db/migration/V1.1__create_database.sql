@@ -1,0 +1,9 @@
+CREATE SCHEMA IF NOT EXISTS gisamodinfocaddb AUTHORIZATION postgres;
+
+DROP EXTENSION  IF EXISTS "uuid-ossp" ;
+CREATE EXTENSION "uuid-ossp";
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_number
+    INCREMENT 1
+    START 1
+    CACHE 1;
