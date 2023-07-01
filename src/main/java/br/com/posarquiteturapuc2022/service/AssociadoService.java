@@ -1,4 +1,4 @@
-package br.com.posarquiteturapuc2022.services;
+package br.com.posarquiteturapuc2022.service;
 
 import java.util.List;
 import java.util.UUID;

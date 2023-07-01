@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TipoUsuario {
-	MEDICO(1, "Médico"), 
-	CONSULTORIO(2, "Consultório"), 
-	LABORATORIO(3, "Laboratório"), 
-	CLINICA(4, "Clínica"), 
-	HOSPITAL(5, "´Hospital");
+	ASSOCIADO(1, "Associado"), 
+	PRESTADOR(2, "Prestador"),
+	CONVENIADO(3, "Conveniado");
 	
 	private Integer codigo;
 	private String descricao;
@@ -37,6 +35,7 @@ public enum TipoUsuario {
 			}
 		}
 		
-		throw new IllegalArgumentException("Tipo de Usuário inválido");
+		throw new IllegalArgumentException("Tipo Usuário inválido");
 	}
+
 }

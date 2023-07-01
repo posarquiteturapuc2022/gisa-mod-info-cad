@@ -1,41 +1,40 @@
-package br.com.posarquiteturapuc2022.services.impl;
+package br.com.posarquiteturapuc2022.service.impl;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.springframework.core.env.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import br.com.posarquiteturapuc2022.domain.Especialidade;
 import br.com.posarquiteturapuc2022.domain.Prestador;
 import br.com.posarquiteturapuc2022.domain.Usuario;
 import br.com.posarquiteturapuc2022.domain.enums.TipoPrestador;
+import br.com.posarquiteturapuc2022.domain.enums.TipoUsuario;
 import br.com.posarquiteturapuc2022.exception.ObjectNotFoundException;
-import br.com.posarquiteturapuc2022.feignIndoCad.UsuarioApiFeign;
+import br.com.posarquiteturapuc2022.feignInfoCad.UsuarioApiFeign;
 import br.com.posarquiteturapuc2022.repository.PrestadorRepository;
-import br.com.posarquiteturapuc2022.repository.UsuarioRepository;
-import br.com.posarquiteturapuc2022.services.PrestadorService;
+import br.com.posarquiteturapuc2022.service.PrestadorService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
-@Slf4j
 @Service
 public class PrestadorServiceImpl implements PrestadorService{
-
-	private final UsuarioRepository usuarioRepository;
 	
+	private final Logger logger = LoggerFactory.getLogger(PrestadorServiceImpl.class);
+
 	private final PrestadorRepository prestadorRepository;
 
-	private final Environment env;
-	
 	private final UsuarioApiFeign infoCadFeign;
+	
+	private Usuario CACHE = new Usuario();
 
 	@Override
 	public Prestador findById(UUID id) {
-		return prestadorRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Associado não encontrado!"));
+		return prestadorRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Prestador não encontrado!"));
 	}
 
 	@Override
@@ -45,25 +44,26 @@ public class PrestadorServiceImpl implements PrestadorService{
 	
 	@Override
 	public Prestador findByCnpj(String cnpj) {
-		return prestadorRepository.findByCnpj(cnpj).orElseThrow(() -> new ObjectNotFoundException("Associado não encontrado!"));
+		return prestadorRepository.findByCnpj(cnpj).orElseThrow(() -> new ObjectNotFoundException("Prestador não encontrado pelo cnpj!"));
 	}
 	
 	@Override
 	public Prestador save(Prestador prestador) {
-	    Especialidade especialidade = new Especialidade(); 
 		Usuario usuario = buscaUsuarioApiCnpj(prestador.getCnpjPrestador());
 		
 		if (!usuario.getCnpj().equals(prestador.getCnpjPrestador())) {
 			throw new ObjectNotFoundException("Usuário não encontrado!");
 		}
 		
-		usuarioRepository.save(usuario);
-		
 		prestador.setNomePrestador(usuario.getNome());
 		prestador.setEmailPrestador(usuario.getEmail());
+		if (usuario.getCnpj() != null 
+				&& (usuario.getTipoUsuario().equals(TipoUsuario.ASSOCIADO) 
+					|| usuario.getTipoUsuario().equals(TipoUsuario.PRESTADOR))) {
+			prestador.setTipoUsuario(usuario.getTipoUsuario());
+		}
 		prestador.setCnpjPrestador(usuario.getCnpj());
 		prestador.setResponsavelPrestador(usuario.getNome());
-	    prestador.setEspecialidade(especialidade);
 	    prestador.setTipoPrestador(TipoPrestador.MEDICO); 
 	    prestador.setSituacao(true);;
 		return prestadorRepository.save(prestador);
@@ -72,25 +72,21 @@ public class PrestadorServiceImpl implements PrestadorService{
 	@Override
 	public Prestador update(Prestador prestador) {
 		Especialidade especialidade = new Especialidade(); 
-		if (prestador.getEspecialidade().getConsulta().getId() != null) {
-			especialidade = geradorConsulta();
-		}else {
-			especialidade = geradorCirurgia();
-		}
-		
 		Usuario usuario = buscaUsuarioApiCnpj(prestador.getCnpjPrestador());
 		
 		if (!usuario.getCnpj().equals(prestador.getCnpjPrestador())) {
 			throw new ObjectNotFoundException("Usuário não encontrado!");
 		}
 		
-		usuarioRepository.save(usuario);
-		
 		prestador.setNomePrestador(usuario.getNome());
 		prestador.setEmailPrestador(usuario.getEmail());
+		if (usuario.getCnpj() != null 
+				&& (usuario.getTipoUsuario().equals(TipoUsuario.ASSOCIADO) 
+				|| usuario.getTipoUsuario().equals(TipoUsuario.PRESTADOR))) {
+			prestador.setTipoUsuario(usuario.getTipoUsuario());
+		}
 		prestador.setCnpjPrestador(usuario.getCnpj());
 		prestador.setResponsavelPrestador(usuario.getNome());
-		prestador.setEspecialidade(especialidade);
 		prestador.setTipoPrestador(TipoPrestador.MEDICO); 
 		prestador.setSituacao(true);;
 		return prestadorRepository.saveAndFlush(prestador);
@@ -98,39 +94,37 @@ public class PrestadorServiceImpl implements PrestadorService{
 
 	@Override
 	public void delete(UUID id) {
-		Prestador prestador = prestadorRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Associado não encontrado!"));
+		Prestador prestador = prestadorRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Prestador não encontrado!"));
 		prestadorRepository.delete(prestador);	
 	}
-	
 
-	private Especialidade geradorCirurgia() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	private Especialidade geradorConsulta() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public Usuario buscaUsuarioApiCnpj(String cnpj) {
-		log.info("USUARIO_SERVICE ::: Get request on " + env.getProperty("local.server.port") + " port");
 		try {
 			var usuario = infoCadFeign.findByCnpj(cnpj).getBody();
-			
+			logger.info("Buscando da API de Usuários");
 			if (Objects.nonNull(usuario)) {
 				return new Usuario(
 						usuario.getId(), 
 						usuario.getNome(),
 						usuario.getEmail(), 
-						null, 
 						usuario.getCnpj(), 
-						usuario.getNumeroSUS(), 
+						null, 
+						null, 
+						null, 
+						usuario.getCep(), 
+						usuario.getEndereco(), 
+						usuario.getNumero(), 
+						usuario.getBairro(), 
 						usuario.getCidade(), 
 						usuario.getUf(), 
-						usuario.getDataNascimento(),
-						usuario.getPassword() 
-						);
+						null, 
+						null, 
+						usuario.getTipoUsuario(), 
+						null, 
+						null,
+						usuario.getDataCadastro(),
+						usuario.getPassword()  
+				);
 			}
 		} catch (FeignException.NotFound ex) {
 			throw new ObjectNotFoundException("Usuário não encontrado!");
@@ -140,5 +134,33 @@ public class PrestadorServiceImpl implements PrestadorService{
 		return null;
 	}
 	
-	
+	private Usuario carregaUsuarioConstrutor(Usuario usuario) {
+		if (Objects.nonNull(usuario)) {
+			logger.info("Buscando da API de Usuários");
+			return new Usuario( 
+					usuario.getId(), 
+					usuario.getNome(),
+					usuario.getEmail(), 
+					usuario.getCnpj(), 
+					null, 
+					null, 
+					null, 
+					usuario.getCep(), 
+					usuario.getEndereco(), 
+					usuario.getNumero(), 
+					usuario.getBairro(), 
+					usuario.getCidade(), 
+					usuario.getUf(), 
+					null, 
+					null, 
+					usuario.getTipoUsuario(), 
+					null, 
+					null,
+					usuario.getDataCadastro(),
+					usuario.getPassword() 
+				);
+		}else {
+			return CACHE;
+		}
+	}
 }

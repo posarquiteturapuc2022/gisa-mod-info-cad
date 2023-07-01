@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TipoCategoria {
 	ATIVO(1, "Ativo"), 
-	SUSPENSO(2, "Suspenso"), 
+	SUSPENSO(2, "Suspenso/Análise"), 
 	INATIVO(3, "Inativo");
 	
 	private Integer codigo;

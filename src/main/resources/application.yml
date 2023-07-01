@@ -1,5 +1,9 @@
+# Server Configuration
 server:
   port: ${PORT:8001}
+  servlet:
+    context-path: /gisa-mod-info-cad
+  
 spring:
   application:
     name: gisa-mod-info-cad
@@ -33,6 +37,12 @@ spring:
     locations: classpath:db/migration
   main:
     allow-bean-definition-overriding: true
+    
+resilience4j.circuitbreaker:
+    instances:
+        associadoCB:
+            minimumNumberOfCalls: 4
+            slidingWindowSize: 8
     
 eureka:
   client:

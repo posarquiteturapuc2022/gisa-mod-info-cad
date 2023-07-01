@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.persistence.AttributeOverride;
@@ -13,18 +14,28 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import br.com.posarquiteturapuc2022.domain.enums.TipoCategoria;
 import br.com.posarquiteturapuc2022.domain.enums.TipoCobertura;
+import br.com.posarquiteturapuc2022.domain.enums.TipoPlanoSaude;
+import br.com.posarquiteturapuc2022.domain.enums.TipoUsuario;
 import br.com.posarquiteturapuc2022.utils.EntityAbstract;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode.Include;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter @Setter
+/**
+ * @author alvar
+ *
+ */
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -42,16 +53,26 @@ public class Associado extends EntityAbstract implements Serializable, Comparabl
     private String nomeAssociado;
     private String cpfAssociado;
     private String emailAssociado;
-    private LocalDate dataCadastro;
-    	
-    private Integer idade;
     private Integer codigoPlano;
     private BigDecimal valorPlanoMensal;
+    
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate dataCadastro;
+    
+    private Integer idade;
 	private TipoCobertura tipoCobertura;
 	private TipoCategoria tipoCategoria;
-    private boolean odontologico;
+	private TipoPlanoSaude tipoPlanoSaude;
+	private TipoUsuario tipoUsuario;  
+    
+	private boolean odontologico;
     
     private boolean situacao;
+    
+	@PrePersist
+	public void prepersist() {
+		this.setDataCadastro(LocalDate.now());
+	}
 
 	public void planoOdontologico(boolean planoOdontologico, BigDecimal valorPlano) {
 		if (planoOdontologico) {
@@ -69,5 +90,34 @@ public class Associado extends EntityAbstract implements Serializable, Comparabl
 	@Override
 	public int compareTo(Associado o) {
 		return  o.getCreatedAt().compareTo(getCreatedAt());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Associado other = (Associado) obj;
+		return Objects.equals(codigoPlano, other.codigoPlano) && Objects.equals(cpfAssociado, other.cpfAssociado)
+				&& Objects.equals(dataCadastro, other.dataCadastro)
+				&& Objects.equals(emailAssociado, other.emailAssociado) && Objects.equals(id, other.id)
+				&& Objects.equals(idade, other.idade) && Objects.equals(nomeAssociado, other.nomeAssociado)
+				&& odontologico == other.odontologico && situacao == other.situacao
+				&& tipoCategoria == other.tipoCategoria && tipoCobertura == other.tipoCobertura
+				&& tipoPlanoSaude == other.tipoPlanoSaude && tipoUsuario == other.tipoUsuario
+				&& Objects.equals(valorPlanoMensal, other.valorPlanoMensal);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(codigoPlano, cpfAssociado, dataCadastro, emailAssociado, id, idade,
+				nomeAssociado, odontologico, situacao, tipoCategoria, tipoCobertura, tipoPlanoSaude, tipoUsuario,
+				valorPlanoMensal);
+		return result;
 	}
 }

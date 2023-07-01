@@ -10,20 +10,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.posarquiteturapuc2022.domain.Associado;
 import br.com.posarquiteturapuc2022.resources.AssociadoResource;
-import br.com.posarquiteturapuc2022.services.AssociadoService;
+import br.com.posarquiteturapuc2022.service.AssociadoService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/api/associados")
+@RequestMapping(value = "/v1/api/associados")
 public class AssociadoResourceImpl implements AssociadoResource{
 
 	private final AssociadoService associadoService;
 	
-	/* ASSOCIADOS */
 	@Override
 	public ResponseEntity<Associado> findById(UUID id) {
 		return ResponseEntity.ok().body(associadoService.findById(id));
+	}
+
+	@Override
+	public ResponseEntity<Associado> findByCpf(String cpf) {
+		return ResponseEntity.ok().body(associadoService.findByCpf(cpf));
 	}
 
 	@Override
@@ -46,5 +50,4 @@ public class AssociadoResourceImpl implements AssociadoResource{
 		associadoService.delete(id);
 		return ResponseEntity.noContent().build();
 	}
-	
 }

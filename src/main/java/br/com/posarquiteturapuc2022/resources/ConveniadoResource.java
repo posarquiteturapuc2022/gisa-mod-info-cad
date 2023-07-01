@@ -10,24 +10,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import br.com.posarquiteturapuc2022.domain.Associado;
+import br.com.posarquiteturapuc2022.domain.Conveniado;
 
-public interface AssociadoResource {
+public interface ConveniadoResource {
 	
 	@RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
-	ResponseEntity<Associado> findById(@PathVariable UUID id);
-	
+	ResponseEntity<Conveniado> findById(@PathVariable UUID id);
+
 	@RequestMapping(value = "/cnpj/{cnpj}", method = RequestMethod.GET)
-	ResponseEntity<Associado> findByCpf(@PathVariable String cpf);
-	
+	ResponseEntity<Conveniado> findByCnpj(@PathVariable String cnpj);
+
 	@RequestMapping(value = "/lista", method = RequestMethod.GET)
-	ResponseEntity<List<Associado>> findAll();
+	ResponseEntity<List<Conveniado>> findAll();
 
     @RequestMapping(value = {"/save"}, method = RequestMethod.POST)
-	ResponseEntity<Associado> save(@RequestBody Associado associado);
+	ResponseEntity<Conveniado> save(@RequestBody Conveniado conveniado);
 
-	@RequestMapping(value = {"/update"}, method = RequestMethod.PUT)
-	ResponseEntity<Associado> update(@RequestBody Associado associado);
+	@RequestMapping(value = {"/update"}, method = RequestMethod.POST)
+	ResponseEntity<Conveniado> update(@RequestBody Conveniado conveniado);
 
 	@DeleteMapping(value = "/delete/{id}")
 	ResponseEntity<Void> delete(@PathVariable UUID id);

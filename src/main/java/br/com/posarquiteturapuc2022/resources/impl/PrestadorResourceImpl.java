@@ -10,21 +10,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.posarquiteturapuc2022.domain.Prestador;
 import br.com.posarquiteturapuc2022.resources.PrestadorResource;
-import br.com.posarquiteturapuc2022.services.impl.PrestadorServiceImpl;
+import br.com.posarquiteturapuc2022.service.impl.PrestadorServiceImpl;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/api/prestadores")
+@RequestMapping(value = "/v1/api/prestadores")
 public class PrestadorResourceImpl implements PrestadorResource{
-
-//	private final PresService userService;
 
 	private final PrestadorServiceImpl prestadoreService;
 	
 	@Override
 	public ResponseEntity<Prestador> findById(UUID id) {
 		return ResponseEntity.ok().body(prestadoreService.findById(id));
+	}
+	
+	@Override
+	public ResponseEntity<Prestador> findByCnpj(String cnpj) {
+		return ResponseEntity.ok().body(prestadoreService.findByCnpj(cnpj));
 	}
 
 	@Override
@@ -47,5 +50,4 @@ public class PrestadorResourceImpl implements PrestadorResource{
 		prestadoreService.delete(id);
 		return ResponseEntity.noContent().build();
 	}
-
 }

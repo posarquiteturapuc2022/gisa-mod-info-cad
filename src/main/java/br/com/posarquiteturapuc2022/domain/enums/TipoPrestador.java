@@ -4,18 +4,18 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TipoPrestador {
-	MEDICO(1, "Médico"), 
-	ENFERMEIRO(2, "Enfermeiro"), 
-	FISIOTERAPEUTA(3, "Fisioterapeuta"), 
-	DENTISTA(4, "Dentista"), 
-	FONOAUDIOLOGO(5, "Fonoaudiólogo"), 
-	PSICOLOGA(6, "Psicóloga"), 
-	FAMACEUTICO(7, "Famacêutico"), 
-	BIOMEDICO(8, "Biomédico"), 
-	RADIOLOGISTA(9, "Radiologista"), 
-	NUTRICIONISTA(10, "Nutricionista"), 
-	PSIQUIATRA(11, "Psiquiatra"), 
-	TERAPEUTA_OCUPACIONAL(12, "Terapeuta Ocupacional");
+	MEDICO(0, "Médico"), 
+	ENFERMEIRO(1, "Enfermeiro"), 
+	FISIOTERAPEUTA(2, "Fisioterapeuta"), 
+	DENTISTA(3, "Dentista"), 
+	FONOAUDIOLOGO(4, "Fonoaudiólogo"), 
+	PSICOLOGA(5, "Psicóloga"), 
+	FAMACEUTICO(6, "Famacêutico"), 
+	BIOMEDICO(7, "Biomédico"), 
+	RADIOLOGISTA(8, "Radiologista"), 
+	NUTRICIONISTA(9, "Nutricionista"), 
+	PSIQUIATRA(10, "Psiquiatra"), 
+	TERAPEUTA_OCUPACIONAL(11, "Terapeuta Ocupacional");
 	
 	private Integer codigo;
 	private String descricao;
